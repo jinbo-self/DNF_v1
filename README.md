@@ -4,6 +4,11 @@
 
 DNFpython脚本开发
 使用过程中的注意事项：
+-2 requirements.txt包含了环境所有的包，因为我懒得弄，建议自己看着报错装
+
+-1. 如何关闭YOLO的推理日志：https://blog.csdn.net/qq_43376286/article/details/131885020
+
+0.如果报libiomp5md.dll错误，在自己环境目录下搜索libiomp5md.dll，有两个个同名的，保留库目录下(site-package)的，删除或者重命令环境目录下的libiomp5md.dll：https://blog.csdn.net/owenzi0/article/details/137796908
 
 1.电脑设置为1920X1080，100%缩放(理论上不设置好像也行)，dnf设置为800X600
 

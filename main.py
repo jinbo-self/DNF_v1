@@ -1,14 +1,13 @@
 import asyncio
 import json
 import pickle
-import socket
-import struct
 import threading
 import time
 
 import mss
 import numpy as np
 import websockets
+
 from ultralytics import YOLO
 
 import 数据
