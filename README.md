@@ -1,4 +1,7 @@
 # DNF-
+
+点个star呗
+
 DNFpython脚本开发
 使用过程种的注意事项：
 
