@@ -1,6 +1,6 @@
 # DNF-
 
-点个star呗
+点个star呗，requirements.txt中有些包有问题，比如那几个file:///C:/b/abs_edwkj1_069/croot/mkl_random_1695059866750/work这种形式的，建议还是根据报错来装
 
 DNFpython脚本开发
 使用过程中的注意事项：
