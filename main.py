@@ -1,4 +1,6 @@
+import asyncio
 import json
+import pickle
 import socket
 import struct
 import threading
@@ -6,6 +8,7 @@ import time
 
 import mss
 import numpy as np
+import websockets
 from ultralytics import YOLO
 
 import 数据
@@ -66,88 +69,105 @@ def 副线程():
     print("进入副线程")
     with mss.mss() as sct:
         model = YOLO("best.pt")
-        config.read("配置.ini")
-        if config['配置']['在线推理'] == '1':
-            while True:
-                time.sleep(0.01)
-                sct_img = sct.grab((0, 0, 800, 600))
-                img = np.array(sct_img)[:, :, :3]
-                img = img.astype(np.uint8)
-                server_address = (数据.服务端ip, 12345)
-                result = send_image(img, server_address)
+        while True:
+            time.sleep(0.01)
+            sct_img = sct.grab((0, 0, 800, 600))
+            img = np.array(sct_img)[:, :, :3]
+            img = img.astype(np.uint8)
+            results = model(img)  # 对图像进行预测
+            所有门坐标 = []
+            所有物品坐标 = []
+            所有怪物坐标 = []
 
+            角色坐标 = (999, 999)
+
+            #
+            for r in results:
+                boxes = r.boxes  # Boxes object for bbox outputs
+                # img = r.plot(img=img)
+                # #Boss,LittleBoss,Hero,Monster,Door,Object
+                for box in boxes:
+                    if r.names[int(np.array(box.cls.cpu())[0])] == "Door":
+                        门 = np.array(box.xyxy.cpu())[0]
+                        所有门坐标.append(((门[2] + 门[0]) / 2, 门[3]))
+                    elif r.names[int(np.array(box.cls.cpu())[0])] == "Object":
+                        物品 = np.array(box.xyxy.cpu())[0]
+                        所有物品坐标.append(((物品[2] + 物品[0]) / 2, 物品[3]))
+                    elif (r.names[int(np.array(box.cls.cpu())[0])] == "Boss"
+                          or r.names[int(np.array(box.cls.cpu())[0])] == "LittleBoss"
+                          or r.names[int(np.array(box.cls.cpu())[0])] == "Monster"):
+                        怪物 = np.array(box.xyxy.cpu())[0]
+                        所有怪物坐标.append(((怪物[2] + 怪物[0]) / 2, 怪物[3]))
+                    elif r.names[int(np.array(box.cls.cpu())[0])] == "Hero":
+                        角色 = np.array(box.xyxy.cpu())[0]
+                        角色坐标 = ((角色[2] + 角色[0]) / 2, 角色[3])
+
+            with 数据.写锁:
+                数据.全_所有门坐标 = 所有门坐标
+                数据.全_所有怪物坐标 = 所有怪物坐标
+                数据.全_所有物品坐标 = 所有物品坐标
+                数据.全_角色坐标 = 角色坐标
+
+async def 副线程1():
+    print("进入副线程1")
+    uri = "ws://localhost:12345"
+    try:
+        async with websockets.connect(uri) as websocket:
+            await capture_and_send_image(websocket)
+    except (websockets.exceptions.InvalidURI, websockets.exceptions.InvalidHandshake, websockets.exceptions.WebSocketException) as e:
+        print(f"Failed to establish connection: {e}")
+async def capture_and_send_image(websocket):
+    with mss.mss() as sct:
+        while True:
+            time.sleep(0.01)
+            sct_img = sct.grab((0, 0, 800, 600))
+            img = np.array(sct_img)[:, :, :3]
+            img = img.astype(np.uint8)
+            img = pickle.dumps(img)
+            try:
+                print("发送数据")
+                chunk_size = 1024 * 128  # 每块128KB
+
+                for i in range(0, len(img), chunk_size):
+                    chunk = img[i:i + chunk_size]
+                    await websocket.send(chunk)
+                await websocket.send("EOF")  # 表示传输结束
+                response = await websocket.recv()
+                result = json.loads(response.decode('utf-8'))
+                # print(result)
                 with 数据.写锁:
                     数据.全_所有门坐标 = result['所有门坐标']
                     数据.全_所有怪物坐标 = result['所有怪物坐标']
                     数据.全_所有物品坐标 = result['所有物品坐标']
                     数据.全_角色坐标 = result['角色坐标']
-        else:
-            while True:
-                time.sleep(0.01)
-                sct_img = sct.grab((0, 0, 800, 600))
-                img = np.array(sct_img)[:, :, :3]
-                img = img.astype(np.uint8)
-                results = model(img)  # 对图像进行预测
-                所有门坐标 = []
-                所有物品坐标 = []
-                所有怪物坐标 = []
 
-                角色坐标 = (999, 999)
+            except websockets.exceptions.ConnectionClosed as e:
+                print(f"Connection closed: {e}")
+                break
 
-                #
-                for r in results:
-                    boxes = r.boxes  # Boxes object for bbox outputs
-                    # img = r.plot(img=img)
-                    # #Boss,LittleBoss,Hero,Monster,Door,Object
-                    for box in boxes:
-                        if r.names[int(np.array(box.cls.cpu())[0])] == "Door":
-                            门 = np.array(box.xyxy.cpu())[0]
-                            所有门坐标.append(((门[2] + 门[0]) / 2, 门[3]))
-                        elif r.names[int(np.array(box.cls.cpu())[0])] == "Object":
-                            物品 = np.array(box.xyxy.cpu())[0]
-                            所有物品坐标.append(((物品[2] + 物品[0]) / 2, 物品[3]))
-                        elif (r.names[int(np.array(box.cls.cpu())[0])] == "Boss"
-                              or r.names[int(np.array(box.cls.cpu())[0])] == "LittleBoss"
-                              or r.names[int(np.array(box.cls.cpu())[0])] == "Monster"):
-                            怪物 = np.array(box.xyxy.cpu())[0]
-                            所有怪物坐标.append(((怪物[2] + 怪物[0]) / 2, 怪物[3]))
-                        elif r.names[int(np.array(box.cls.cpu())[0])] == "Hero":
-                            角色 = np.array(box.xyxy.cpu())[0]
-                            角色坐标 = ((角色[2] + 角色[0]) / 2, 角色[3])
-
-                with 数据.写锁:
-                    数据.全_所有门坐标 = 所有门坐标
-                    数据.全_所有怪物坐标 = 所有怪物坐标
-                    数据.全_所有物品坐标 = 所有物品坐标
-                    数据.全_角色坐标 = 角色坐标
-
-
-def send_image(image_data, server_address):
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect(server_address)
-
-    try:
-        # 发送图片数据长度
-        client_socket.sendall(struct.pack('>I', len(image_data)))
-        # 发送图片数据
-        client_socket.sendall(image_data)
-
-        # 接收处理结果长度
-        data = client_socket.recv(4)
-        result_size = struct.unpack('>I', data)[0]
-        # 接收处理结果数据
-        result_data = client_socket.recv(result_size)
-        result = json.loads(result_data.decode('utf-8'))
-
-    finally:
-        client_socket.close()
-
-    return result
-
+def start_event_loop(loop):
+    asyncio.set_event_loop(loop)
+    loop.run_forever()
 
 if __name__ == '__main__':
     print("开始程序")
-    thread = threading.Thread(target=副线程)
-    thread.start()
-    进入主线程()
-    thread.join()
+    asyncio.run(副线程1())
+    config.read('配置.ini')
+    # if config['配置']['在线推理'] == '1':
+    #     # 创建一个新的事件循环
+    #     new_loop = asyncio.new_event_loop()
+    #
+    #     # 创建一个线程来运行事件循环
+    #     t = threading.Thread(target=start_event_loop, args=(new_loop,))
+    #     t.start()
+    #
+    #     # 在新事件循环中添加异步任务
+    #     asyncio.run_coroutine_threadsafe(副线程1(), new_loop)
+    #
+    #     # 运行主线程任务
+    #     进入主线程()
+    # else:
+    #     thread = threading.Thread(target=副线程)
+    #     thread.start()
+    #     进入主线程()
+    #     thread.join()
