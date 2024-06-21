@@ -18,7 +18,7 @@ DNFpython脚本开发
 
 4.python版本是3.8.19,其他的库看报错来装吧，或者你用requirements.t也行
 
-5.一键聚物用的是v键，buff放在y键，社交-角色信息设置-款式3
+5.一键聚物用的是v键，buff放在y键，ctrl和alt放觉醒，boss房间先放ctrl后放alt，社交-角色信息设置-款式3
 
 6.本脚本用的是wegame自动登录，所以你需要自己手动登录wegame一次，让wegame记住密码才能用本脚本，记得在配置.ini中更改wegame目录
 
