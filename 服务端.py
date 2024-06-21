@@ -8,6 +8,7 @@ import numpy as np
 import websockets
 from ultralytics import YOLO
 
+import 数据
 
 
 async def process_image(image_data):
@@ -76,7 +77,7 @@ async def handler(websocket, path):
     finally:
         print("Connection cleaned up.")
 model = YOLO('best.pt')
-start_server = websockets.serve(handler, 'localhost', 12345)
+start_server = websockets.serve(handler, 数据.服务端ip, 12345)
 print("Server started at ws://localhost:12345")
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()

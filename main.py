@@ -111,7 +111,7 @@ def 副线程():
 
 async def 副线程1():
     print("进入副线程1")
-    uri = "ws://localhost:12345"
+    uri = "ws://"+数据.服务端ip+":12345"
     try:
         async with websockets.connect(uri) as websocket:
             await capture_and_send_image(websocket)
