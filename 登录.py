@@ -121,4 +121,11 @@ def 登录():
 
 
 if __name__ == '__main__':
-    print(识字.识字(数据.游戏开始))
+    运行清理进程()
+    运行清理wegame()
+    subprocess.Popen('D:/WeGame/wegame.exe')
+    while True:
+        返回值 = move_window("WeGame", "TWINCONTROL")
+        if "账号密码登录" in 识字.识字(数据.wegame_登录):
+            数据.全_登录方式 = 1
+            break

@@ -96,7 +96,7 @@ def move_window(title, class_name):
     hwnd = win32gui.FindWindow(class_name, title)
     if hwnd:
         # 移动窗口
-        win32gui.SetWindowPos(hwnd, win32con.HWND_TOP, 0, 0, 0, 0,
+        win32gui.SetWindowPos(hwnd, win32con.HWND_TOPMOST, 0, 0, 0, 0,
                               win32con.SWP_NOSIZE | win32con.SWP_SHOWWINDOW)
         return True
     else:
