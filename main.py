@@ -108,14 +108,17 @@ def 副线程():
                 数据.全_所有物品坐标 = 所有物品坐标
                 数据.全_角色坐标 = 角色坐标
 
+
 async def 副线程1():
     print("进入副线程1")
     uri = "ws://localhost:12345"
     try:
         async with websockets.connect(uri) as websocket:
             await capture_and_send_image(websocket)
-    except (websockets.exceptions.InvalidURI, websockets.exceptions.InvalidHandshake, websockets.exceptions.WebSocketException) as e:
+    except Exception as e:
         print(f"Failed to establish connection: {e}")
+
+
 async def capture_and_send_image(websocket):
     with mss.mss() as sct:
         while True:
@@ -125,7 +128,7 @@ async def capture_and_send_image(websocket):
             img = img.astype(np.uint8)
             img = pickle.dumps(img)
             try:
-                print("发送数据")
+                # print("发送数据")
                 chunk_size = 1024 * 128  # 每块128KB
 
                 for i in range(0, len(img), chunk_size):
@@ -141,33 +144,34 @@ async def capture_and_send_image(websocket):
                     数据.全_所有物品坐标 = result['所有物品坐标']
                     数据.全_角色坐标 = result['角色坐标']
 
-            except websockets.exceptions.ConnectionClosed as e:
+            except Exception as e:
                 print(f"Connection closed: {e}")
                 break
+
 
 def start_event_loop(loop):
     asyncio.set_event_loop(loop)
     loop.run_forever()
 
+
 if __name__ == '__main__':
     print("开始程序")
-    asyncio.run(副线程1())
     config.read('配置.ini')
-    # if config['配置']['在线推理'] == '1':
-    #     # 创建一个新的事件循环
-    #     new_loop = asyncio.new_event_loop()
-    #
-    #     # 创建一个线程来运行事件循环
-    #     t = threading.Thread(target=start_event_loop, args=(new_loop,))
-    #     t.start()
-    #
-    #     # 在新事件循环中添加异步任务
-    #     asyncio.run_coroutine_threadsafe(副线程1(), new_loop)
-    #
-    #     # 运行主线程任务
-    #     进入主线程()
-    # else:
-    #     thread = threading.Thread(target=副线程)
-    #     thread.start()
-    #     进入主线程()
-    #     thread.join()
+    if config['配置']['在线推理'] == '1':
+        # 创建一个新的事件循环
+        new_loop = asyncio.new_event_loop()
+
+        # 创建一个线程来运行事件循环
+        t = threading.Thread(target=start_event_loop, args=(new_loop,))
+        t.start()
+
+        # 在新事件循环中添加异步任务
+        asyncio.run_coroutine_threadsafe(副线程1(), new_loop)
+
+        # 运行主线程任务
+        进入主线程()
+    else:
+        thread = threading.Thread(target=副线程)
+        thread.start()
+        进入主线程()
+        thread.join()
