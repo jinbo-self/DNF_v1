@@ -4,9 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2c408aaa-b976-4227-8745-d47c3eebe7dd" name="更改" comment="小改">
+    <list default="true" id="2c408aaa-b976-4227-8745-d47c3eebe7dd" name="更改" comment="小改readme">
+      <change afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/补丁/0sprite_item.NPK" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,11 +71,16 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "main",
+    "last_opened_file_path": "D:/文件/代码类/DNF_v1",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\文件\代码类\DNF_v1" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\文件\代码类\DNF_v1\补丁" />
       <recent name="D:\文件\代码类\DNF-\刷图脚本" />
       <recent name="D:\文件\代码类\DNF-" />
     </key>
@@ -589,7 +597,15 @@
       <option name="project" value="LOCAL" />
       <updated>1718967637846</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="小改readme">
+      <option name="closed" value="true" />
+      <created>1718968022584</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1718968022584</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -619,7 +635,8 @@
     <MESSAGE value="小更" />
     <MESSAGE value="新增虚拟机与物理机的socket通信，使用物理机来推理" />
     <MESSAGE value="小改" />
-    <option name="LAST_COMMIT_MESSAGE" value="小改" />
+    <MESSAGE value="小改readme" />
+    <option name="LAST_COMMIT_MESSAGE" value="小改readme" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
