@@ -1,14 +1,16 @@
+import asyncio
+import pickle
 import socket
 import struct
 import json
 
 import numpy as np
+import websockets
 from ultralytics import YOLO
 
-model = YOLO("best.pt")
 
 
-def process_image(image_data):
+async def process_image(image_data):
     # 这里调用YOLO处理图片，并返回识别的类和坐标
     # 这里假设返回的结果是一个列表，格式如下
     # [{'class': 'person', 'bbox': [x1, y1, x2, y2]}, ...]
@@ -45,37 +47,39 @@ def process_image(image_data):
 
     result = {'所有门坐标': 所有门坐标, '所有怪物坐标': 所有怪物坐标, '所有物品坐标': 所有物品坐标,
               '角色坐标': 角色坐标}
-
     return result
+def numpy_type_converter(obj):
+    if isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    else:
+        return obj
+async def handler(websocket, path):
+    buffer = b""
+    try:
+        async for image_data in websocket:
+            # print("Received image data!")
+            if image_data == "EOF":
+                image_data = pickle.loads(buffer)
+                result = await process_image(image_data)
+                print(result)
+                await websocket.send(json.dumps(result, default=numpy_type_converter).encode('utf-8'))
+                buffer = b""
+            else:
+                buffer += image_data
+
+    except websockets.exceptions.ConnectionClosed as e:
+        print(f"Connection closed: {e}")
+    finally:
+        print("Connection cleaned up.")
+model = YOLO('best.pt')
+start_server = websockets.serve(handler, 'localhost', 12345)
+print("Server started at ws://localhost:12345")
+asyncio.get_event_loop().run_until_complete(start_server)
+asyncio.get_event_loop().run_forever()
 
 
-def main():
-    server_address = ('0.0.0.0', 12345)
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind(server_address)
-    server_socket.listen(5)
 
-    print('Server is listening...')
-
-    while True:
-        connection, client_address = server_socket.accept()
-        try:
-            data = connection.recv(4)
-            if not data:
-                break
-            # 获取图片数据的长度
-            image_size = struct.unpack('>I', data)[0]
-            image_data = connection.recv(image_size)  # 接收图片数据
-
-            result = process_image(image_data)  # 处理图片
-
-            # 发送处理结果
-            result_data = json.dumps(result).encode('utf-8')
-            connection.sendall(struct.pack('>I', len(result_data)) + result_data)
-
-        finally:
-            connection.close()
-
-
-if __name__ == '__main__':
-    main()
