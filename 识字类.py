@@ -10,7 +10,6 @@ from 数据 import *
 # 设置ppocr的日志级别为WARNING，这将关闭DEBUG信息
 logging.getLogger('ppocr').setLevel(logging.WARNING)
 
-
 class 识字初始化:
 
     def __init__(self):
@@ -118,6 +117,6 @@ class 识字初始化:
 if __name__ == '__main__':
     pass
     识字 = 识字初始化()
-    print(识字.识字((612, 241, 726, 280)))
+    print(识字.识字((0, 0, 726, 280)))
     # while True:
     #     print(识字.识字(人物))

@@ -1,3 +1,6 @@
+import json
+import socket
+import struct
 import threading
 import time
 
@@ -63,45 +66,83 @@ def 副线程():
     print("进入副线程")
     with mss.mss() as sct:
         model = YOLO("best.pt")
-        while True:
-            time.sleep(0.01)
-            sct_img = sct.grab((0, 0, 800, 600))
-            img = np.array(sct_img)[:, :, :3]
-            img = img.astype(np.uint8)
-            results = model(img)  # 对图像进行预测
-            所有门坐标 = []
-            所有物品坐标 = []
-            所有怪物坐标 = []
+        config.read("配置.ini")
+        if config['配置']['在线推理'] == '1':
+            while True:
+                time.sleep(0.01)
+                sct_img = sct.grab((0, 0, 800, 600))
+                img = np.array(sct_img)[:, :, :3]
+                img = img.astype(np.uint8)
+                server_address = (数据.服务端ip, 12345)
+                result = send_image(img, server_address)
 
-            角色坐标 = (999, 999)
+                with 数据.写锁:
+                    数据.全_所有门坐标 = result['所有门坐标']
+                    数据.全_所有怪物坐标 = result['所有怪物坐标']
+                    数据.全_所有物品坐标 = result['所有物品坐标']
+                    数据.全_角色坐标 = result['角色坐标']
+        else:
+            while True:
+                time.sleep(0.01)
+                sct_img = sct.grab((0, 0, 800, 600))
+                img = np.array(sct_img)[:, :, :3]
+                img = img.astype(np.uint8)
+                results = model(img)  # 对图像进行预测
+                所有门坐标 = []
+                所有物品坐标 = []
+                所有怪物坐标 = []
 
-            #
-            for r in results:
-                boxes = r.boxes  # Boxes object for bbox outputs
-                # img = r.plot(img=img)
-                # #Boss,LittleBoss,Hero,Monster,Door,Object
-                for box in boxes:
-                    if r.names[int(np.array(box.cls.cpu())[0])] == "Door":
-                        门 = np.array(box.xyxy.cpu())[0]
-                        所有门坐标.append(((门[2] + 门[0]) / 2, 门[3]))
-                    elif r.names[int(np.array(box.cls.cpu())[0])] == "Object":
-                        物品 = np.array(box.xyxy.cpu())[0]
-                        所有物品坐标.append(((物品[2] + 物品[0]) / 2, 物品[3]))
-                    elif (r.names[int(np.array(box.cls.cpu())[0])] == "Boss"
-                          or r.names[int(np.array(box.cls.cpu())[0])] == "LittleBoss"
-                          or r.names[int(np.array(box.cls.cpu())[0])] == "Monster"):
-                        怪物 = np.array(box.xyxy.cpu())[0]
-                        所有怪物坐标.append(((怪物[2] + 怪物[0]) / 2, 怪物[3]))
-                    elif r.names[int(np.array(box.cls.cpu())[0])] == "Hero":
-                        角色 = np.array(box.xyxy.cpu())[0]
-                        角色坐标 = ((角色[2] + 角色[0]) / 2, 角色[3])
+                角色坐标 = (999, 999)
 
-            with 数据.写锁:
-                数据.全_所有门坐标 = 所有门坐标
-                数据.全_所有怪物坐标 = 所有怪物坐标
-                数据.全_所有物品坐标 = 所有物品坐标
-                数据.全_角色坐标 = 角色坐标
+                #
+                for r in results:
+                    boxes = r.boxes  # Boxes object for bbox outputs
+                    # img = r.plot(img=img)
+                    # #Boss,LittleBoss,Hero,Monster,Door,Object
+                    for box in boxes:
+                        if r.names[int(np.array(box.cls.cpu())[0])] == "Door":
+                            门 = np.array(box.xyxy.cpu())[0]
+                            所有门坐标.append(((门[2] + 门[0]) / 2, 门[3]))
+                        elif r.names[int(np.array(box.cls.cpu())[0])] == "Object":
+                            物品 = np.array(box.xyxy.cpu())[0]
+                            所有物品坐标.append(((物品[2] + 物品[0]) / 2, 物品[3]))
+                        elif (r.names[int(np.array(box.cls.cpu())[0])] == "Boss"
+                              or r.names[int(np.array(box.cls.cpu())[0])] == "LittleBoss"
+                              or r.names[int(np.array(box.cls.cpu())[0])] == "Monster"):
+                            怪物 = np.array(box.xyxy.cpu())[0]
+                            所有怪物坐标.append(((怪物[2] + 怪物[0]) / 2, 怪物[3]))
+                        elif r.names[int(np.array(box.cls.cpu())[0])] == "Hero":
+                            角色 = np.array(box.xyxy.cpu())[0]
+                            角色坐标 = ((角色[2] + 角色[0]) / 2, 角色[3])
 
+                with 数据.写锁:
+                    数据.全_所有门坐标 = 所有门坐标
+                    数据.全_所有怪物坐标 = 所有怪物坐标
+                    数据.全_所有物品坐标 = 所有物品坐标
+                    数据.全_角色坐标 = 角色坐标
+
+
+def send_image(image_data, server_address):
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect(server_address)
+
+    try:
+        # 发送图片数据长度
+        client_socket.sendall(struct.pack('>I', len(image_data)))
+        # 发送图片数据
+        client_socket.sendall(image_data)
+
+        # 接收处理结果长度
+        data = client_socket.recv(4)
+        result_size = struct.unpack('>I', data)[0]
+        # 接收处理结果数据
+        result_data = client_socket.recv(result_size)
+        result = json.loads(result_data.decode('utf-8'))
+
+    finally:
+        client_socket.close()
+
+    return result
 
 
 if __name__ == '__main__':
