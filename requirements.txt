@@ -1,0 +1,14 @@
+mss==9.0.1
+numpy==1.24.3
+opencv_contrib_python==4.6.0.66
+opencv_python==4.6.0.66
+opencv_python_headless==4.10.0.84
+paddleocr==2.7.3
+paddleocr.egg==info
+Pillow==10.3.0
+psutil==6.0.0
+PyDirectInput==1.0.4
+pywin32==306
+rwlock==0.0.7
+ultralytics==8.2.38
+websockets==10.4
