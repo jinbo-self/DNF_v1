@@ -714,7 +714,7 @@ def 打开菜单():
         time.sleep(0.35)
         mouse_mov_click(10, 10)
         time.sleep(0.35)
-        key_press_release('esc')
+        mouse_mov_click(697, 576)
         time.sleep(0.35)
 
 
@@ -845,17 +845,31 @@ def 获取最右门(当前门坐标):
 
 
 def 切换下个角色():
-    print("切换到下个角色")
+    print("切换到下个角色：",int(数据.全_角色进度))
     按键.release_all_keys()
     初始化账号()
     if int(数据.全_角色进度) < int(数据.全_角色数):
         切换到选择角色界面()
-        key_press_release('right')
-        进入游戏()
+        #key_press_release('right')
+        #进入游戏()
         config.read("账号.ini")
         config['进度']['角色'] = str(int(config['进度']['角色']) + 1)
         with open('账号.ini', 'w') as configfile:
             config.write(configfile)
+        print("选择角色")
+        for i in range(3):
+            mouse_mov_click(10, 10)
+        for i in range(15):
+            key_press_release('up')
+            time.sleep(0.1)
+        config.read('账号.ini')
+        数据.全_角色进度 = config['进度']['角色']
+        for i in range(int(数据.全_角色进度)):
+            key_press_release('right')
+            time.sleep(0.1)
+        关闭窗口()
+        进入游戏()
+        关闭窗口()
     else:
         config.read("账号.ini")
         config['进度']['角色'] = '0'
