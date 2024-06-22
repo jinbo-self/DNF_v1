@@ -25,6 +25,8 @@ def 白图刷图():
                 config.write(configfile)
 
             数据.全_通关次数 += 1
+            if 数据.全_游戏结束:
+                break
         if "频道" in 副本名称:
             break
         设置图内超时()

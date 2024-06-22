@@ -17,6 +17,7 @@ from 常用类的初始化 import 按键, config, 识字
 from 登录 import 登录
 from 白图架构 import 白图, 白图刷图
 from 键鼠类 import mouse_mov_click
+from datetime import datetime, timedelta
 
 
 def 进入主线程():
@@ -28,6 +29,7 @@ def 进入主线程():
         窗口状态 = move_window("地下城与勇士：创新世纪", "地下城与勇士")
         if not 窗口状态:
             print("游戏不存在")
+            数据.全_游戏结束 = False
             数据.全_登录 = True
             登录()
             数据.全_登录 = False
@@ -51,20 +53,59 @@ def 进入主线程():
             切换下个角色()
 
         if 数据.全_刷完:
-            break
-    print("已刷完")
-    数据.全_进图 = False
-    数据.全_图内超时 = 0
 
-    数据.全_城镇 = False
-    数据.全_城镇超时 = 0
+            数据.全_进图 = False
+            数据.全_图内超时 = 0
 
-    数据.全_登录 = False
-    数据.全_登录超时 = 0
+            数据.全_城镇 = False
+            数据.全_城镇超时 = 0
 
-    print("关闭游戏")
-    运行清理进程()
-    print("等待6：30重启")
+            数据.全_登录 = False
+            数据.全_登录超时 = 0
+
+            运行清理进程()
+            if 30 > 获取到6点30的时间差() > 0:
+                config.read("配置.ini")
+                config['配置']['当前账号'] = '0'
+                config['配置']['当前角色'] = '0'
+                with open('配置.ini', 'w') as configfile:
+                    config.write(configfile)
+
+                config.read("账号.ini")
+                config['配置']['当前账号'] = '0'
+                config['配置']['当前角色'] = '0'
+                config['进度']['账号'] = '0'
+                config['进度']['角色'] = '0'
+                config['进度']['已刷次数'] = '0'
+                with open('账号.ini', 'w') as configfile:
+                    config.write(configfile)
+                数据.全_刷完 = False
+
+            else:
+                print("已刷完,等待6：30重启")
+                time.sleep(600)
+                continue
+
+        if 0 > 获取到6点30的时间差() > -30:
+            数据.全_刷完 = True
+
+
+def 获取到6点30的时间差():
+    # 获取当前时间并提取小时和分钟
+    now = datetime.now()
+    current_time = timedelta(hours=now.hour, minutes=now.minute, seconds=now.second)
+
+    # 创建一个 timedelta 对象，表示6小时30分钟
+    time_to_subtract = timedelta(hours=6, minutes=30)
+
+    # 计算差值
+
+    time_difference = current_time - time_to_subtract
+
+    # 将差值转换为秒
+    seconds_difference = time_difference.total_seconds()
+
+    return seconds_difference
 
 
 def 副线程():
@@ -113,7 +154,7 @@ def 副线程():
 
 async def 副线程1():
     print("进入副线程1")
-    uri = "ws://"+数据.服务端ip+":12345"
+    uri = "ws://" + 数据.服务端ip + ":12345"
     try:
         async with websockets.connect(uri) as websocket:
             await capture_and_send_image(websocket)
