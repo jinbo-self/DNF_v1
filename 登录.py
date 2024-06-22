@@ -26,6 +26,7 @@ def 启动WeGame():
 
 
 def 等待登录成功():
+    print("等待登录成功")
     while True:
         if "验证" in 识字.识字(数据.wegame_验证):
             print("出现验证码，请手动输入")
@@ -34,10 +35,14 @@ def 等待登录成功():
         rect = win32gui.GetWindowRect(句柄)
         宽度 = rect[2] - rect[0]
         高度 = rect[3] - rect[1]
-        if 宽度 > 1250 and 高度 > 800:
+        if "登录" not in 识字.识字(数据.wegame_登录):
             print("登录wegame成功")
             break
+    time.sleep(5)
     while True:
+        print("移动wegame")
+        句柄 = win32gui.FindWindow("TWINCONTROL", "WeGame")
+        win32gui.MoveWindow(句柄, 0, 0, 1280, 830, True)
         返回值 = move_window("WeGame", "TWINCONTROL")
         if 返回值:
             break
@@ -121,11 +126,4 @@ def 登录():
 
 
 if __name__ == '__main__':
-    运行清理进程()
-    运行清理wegame()
-    subprocess.Popen('D:/WeGame/wegame.exe')
-    while True:
-        返回值 = move_window("WeGame", "TWINCONTROL")
-        if "账号密码登录" in 识字.识字(数据.wegame_登录):
-            数据.全_登录方式 = 1
-            break
+    等待登录成功()

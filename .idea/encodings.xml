@@ -3,5 +3,6 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/账号.ini" charset="GBK" />
     <file url="file://$PROJECT_DIR$/配置.ini" charset="GBK" />
+    <file url="PROJECT" charset="GBK" />
   </component>
 </project>
