@@ -12,7 +12,7 @@ from ultralytics import YOLO
 
 import 数据
 from 其他 import 获取启动时间, 运行清理进程
-from 函数功能类 import move_window, DNF获取角色信息, 有疲劳, 设置城镇超时, 回到赛利亚房间, 切换下个角色
+from 函数功能类 import move_window, DNF获取角色信息, 有疲劳, 设置城镇超时, 回到赛利亚房间, 切换下个角色, 装备分解
 from 常用类的初始化 import 按键, config, 识字
 from 登录 import 登录
 from 白图架构 import 白图, 白图刷图
@@ -46,6 +46,8 @@ def 进入主线程():
         if not 有疲劳() and 识字.in城镇():
             # 回到赛利亚房间()
             # 添加分解入库功能
+            装备分解()
+
             切换下个角色()
 
         if 数据.全_刷完:

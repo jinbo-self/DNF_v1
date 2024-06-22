@@ -3,13 +3,14 @@ import random
 import time
 
 import numpy as np
+import pydirectinput
 import win32con
 import win32gui
 from PIL import Image
 
 import 数据
 from 其他 import 初始化账号, 运行清理进程
-from 键鼠类 import key_press_release, mouse_mov_click
+from 键鼠类 import key_press_release, mouse_mov_click, mouse_click
 import heapq
 from 常用类的初始化 import 识字, 按键, config
 from 高级算法 import 移动到目标点附近_通用版, 取最近物品, is距离近
@@ -894,10 +895,29 @@ def 切换下个角色():
     数据.全_角色进度 = config['进度']['角色']
     数据.全_完成角色 += 1
 
+def 装备分解():
+    if "分解" in 识字.识字((320,79,399,114)):
+        mouse_mov_click(351,99)
+        time.sleep(0.35)
+        mouse_mov_click(351+61,99+52)
+        time.sleep(0.35)
+        mouse_mov_click(701, 513)
+        for i in range(8):
+            time.sleep(0.5)
+            mouse_mov_click(486 + i*30, 306)
+        time.sleep(0.35)
+        key_press_release('space')
+        time.sleep(0.35)
+        pydirectinput.move(-57,0)
+        mouse_click()
+    time.sleep(0.5)
+    关闭窗口()
+
 
 # 调用函数
 if __name__ == '__main__':
-    print(有疲劳())
+    move_window("地下城与勇士：创新世纪", "地下城与勇士")
+    装备分解()
     # time.sleep(2)
     # while not isBoss房间(识字):
     #     过图(识字)
