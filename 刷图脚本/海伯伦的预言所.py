@@ -360,11 +360,12 @@ def 海伯伦的预言所():
             运行清理进程()
             运行清理wegame()
             数据.全_游戏结束 = True
-            break
+            return
         elif "返回城镇" in 识字.识字((702,543,793,562)):
             print("意外处于选图界面")
             按键.release_all_keys()
             mouse_mov_click(743,551)
+            return
         elif 识字.in城镇() and 识字.识字((528, 559, 563, 573)) != '100%':
             按键.release_all_keys()
             print("等待虚弱")
@@ -373,6 +374,7 @@ def 海伯伦的预言所():
                 print("进度：", 识字.识字((528, 559, 563, 573)))
                 time.sleep(30)
             print("无虚弱")
+            break
         elif isBoss房间() and "裂缝" not in 识字.识字((612, 241, 726, 280)) and "不稳定" not in 识字.识字(
                 (612, 241, 726, 280)):
             print("Boss处理")
@@ -388,7 +390,7 @@ def 海伯伦的预言所():
                 if 识字.in城镇():
                     print("意外返回城镇")
                     按键.release_all_keys()
-                    break
+                    return
                 if 当前门坐标 or 识字.is开门(房间号):
                     if 海伯伦的预言所过图(房间号):
                         # 过图成功
