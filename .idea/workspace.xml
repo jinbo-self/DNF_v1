@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="11d4b3e5-7ab9-45c1-a803-d79c7c8c342e" name="更改" comment="更新虚弱判定bug">
+    <list default="true" id="11d4b3e5-7ab9-45c1-a803-d79c7c8c342e" name="更改" comment="修订requirements.txt">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/数据.py" beforeDir="false" afterPath="$PROJECT_DIR$/数据.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -236,7 +237,15 @@
       <option name="project" value="LOCAL" />
       <updated>1719053981264</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="修订requirements.txt">
+      <option name="closed" value="true" />
+      <created>1719071913097</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1719071913097</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -259,6 +268,7 @@
     <MESSAGE value="修复wegame登录bug" />
     <MESSAGE value="更新虚弱等待逻辑" />
     <MESSAGE value="更新虚弱判定bug" />
-    <option name="LAST_COMMIT_MESSAGE" value="更新虚弱判定bug" />
+    <MESSAGE value="修订requirements.txt" />
+    <option name="LAST_COMMIT_MESSAGE" value="修订requirements.txt" />
   </component>
 </project>
